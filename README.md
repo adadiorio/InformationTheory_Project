@@ -1,15 +1,15 @@
 <div style="text-align: center;">
-    <h1 style="font-size: 20px;">
+    <h1 style="font-size: 46px;">
         Final project for the <strong style="font-size: 26px;">Information theory</strong> course<br>
-        <strong style="font-size: 46px; display: block; margin-top: 20px;">Inferring change points in the spread of COVID-19</strong>
+        <span style="font-size: 20px; display: block; margin-top: 20px; font-weight: normal;">Inferring change points in the spread of COVID-19</span>
     </h1>
 </div>
 
 <hr style="border: 1px solid #000;">
 
-<div style="display: flex; justify-content: center; align-items: center; width: 100%; text-align: center; position: relative;">
-    <img src="figures/unipd_template.png" alt="Unipd template" style="max-width: 150px; height: auto; margin-left:100px">
-    <img src="figures/pod_template_transparent.png" alt="PoD template" style="max-width: 150px; height: auto; margin-left: 50px;">
+<div style="display: flex; justify-content: center; align-items: center; width: 50%; text-align: center; position: relative;">
+    <img src="figures/unipd_template.png" alt="Unipd template" style="width: 400px; height: auto; margin-right: 20px;">
+    <img src="figures/pod_template_transparent.png" alt="PoD template" style="width: 200px; height: auto; margin-left: 20px;">
 </div>
 
 
@@ -64,9 +64,9 @@ The final result is the so called **posterior distribution**, given by a combina
 
 ### Posterior Distribution (Bayes' rule):
 
-$
+$$
 p(\theta \mid D) = \frac{p(D \mid \theta) p(\theta)}{p(D)} \propto p(D \mid \theta) p(\theta)
-$
+$$
 
 Where:
 - $(p(D \mid \theta))$ is the **likelihood**.
@@ -77,26 +77,26 @@ Where:
 
 Given a current state $(\theta^{(t)})$, the algorithm performs the following steps:
 
-1. Propose a new state $(\theta^*)$ from the proposal distribution $(q(\theta^* \mid \theta^{(t)}))$.
+1. Propose a new state $(\theta^{(i)})$ from the proposal distribution $(q(\theta^* \mid \theta^{(t)}))$.
 
 2. Compute the acceptance ratio:
-$[
-\alpha = \frac{p(D \mid \theta^*) p(\theta^*) q(\theta^{(t)} \mid \theta^*)}{p(D \mid \theta^{(t)}) p(\theta^{(t)}) q(\theta^* \mid \theta^{(t)})}
-]$
+$$[
+\alpha = \frac{p(D \mid \theta^i) p(\theta^*) q(\theta^{(t)} \mid \theta^i)}{p(D \mid \theta^{(t)}) p(\theta^{(t)}) q(\theta^i \mid \theta^{(t)})}
+]$$
 
-3. Accept the new state $(\theta^*)$ with probability:
-$[
-A(\theta^{(t)} \rightarrow \theta^*) = \min\left(1, \alpha\right)
-]$
+3. Accept the new state $(\theta^i)$ with probability:
+$$[
+A(\theta^{(t)} \rightarrow \theta^i) = \min\left(1, \alpha\right)
+]$$
 
-4. If accepted, set $(\theta^{(t+1)} = \theta^*)$, otherwise set $(\theta^{(t+1)} = \theta^{(t)})$.
+4. If accepted, set $(\theta^{(t+1)} = \theta^i)$, otherwise set $(\theta^{(t+1)} = \theta^{(t)})$.
 
 By repeating these steps, we generate a chain of samples:
-$[
+$$[
 \theta^{(0)} \rightarrow \theta^{(1)} \rightarrow \dots \rightarrow \theta^{(N)}
-]$
+]$$
 
-These samples approximate the posterior distribution $(p(\theta \mid D)$), also called limiting distribution of the chain.
+These samples approximate the posterior distribution $(p(\theta \mid D))$, also called limiting distribution of the chain.
 
 
 
@@ -111,23 +111,23 @@ NUTS automates the selection of trajectory length in Hamiltonian Monte Carlo by 
 Given a current state $(\theta^{(t)})$, NUTS performs the following steps:
 
 1. Sample momentum $(r)$ from a normal distribution:
-$[
+$$[
 r \sim \mathcal{N}(0, M)
-]$
+]$$
 where $(M)$ is typically the identity matrix or an adaptive mass matrix.
 
 2. Evolve the system using Hamiltonian dynamics with leapfrog integration:
-$[
+$$[
 \frac{d\theta}{dt} = M^{-1}r, \quad \frac{dr}{dt} = -\nabla U(\theta)
-]$
+]$$
 where $(U(\theta) = -\log p(D \mid \theta) - \log p(\theta))$.
 
 3. At each iteration the algorithm is evolving forward and backward in time building a binary tree of points. After each one, it veryfies the **U-turn** criterion:
 
 
-$[
+$$[
 (\theta^{+} - \theta^{-}) \cdot r^{-} < 0 \quad \text{or} \quad (\theta^{+} - \theta^{-}) \cdot r^{+} < 0
-]$
+]$$
 
 It is checking if the last movement direction is going accordingly to the general one; if it is not respected, the execution is stopped.
 
@@ -136,9 +136,9 @@ It is checking if the last movement direction is going accordingly to the genera
 5. Accept $(\theta^*)$ based on the Hamiltonian Metropolis acceptance criterion (energy conservation).
 
 Repeating this process generates a sequence of samples:
-$[
+$$[
 \theta^{(0)} \rightarrow \theta^{(1)} \rightarrow \dots \rightarrow \theta^{(N)}
-]$
+]$$
 that are approximating the posterior distribution $(p(\theta \mid D))$.
 
 ##  Description of the Functions Used in the SIR Model
@@ -170,21 +170,22 @@ This notebook contains a complete implementation of a **discrete-time Susceptibl
 
 Let $( S(t) )$, $( I(t) )$, and $( R(t) )$ represent the number of susceptible, infected, and recovered individuals at time $( t )$, with:
 
-
+$$
 \begin{aligned}
 I_{\text{new}}(t) &= \beta(t) \cdot \frac{S(t-1) \cdot I(t-1)}{N} \\
 R_{\text{new}}(t) &= \gamma \cdot I(t-1)
 \end{aligned}
-
+$$
 
 
 - **`sir_discrete_delay_w_switch(beta_before, beta_after, gamma, delay, I0, scale, t_switch, dt_switch, t_max, N)`**  
   Introduces a smooth transition in \( $\beta(t)$ \) from `beta_before` to `beta_after` using a sigmoid function:
 
-
+$$
 \begin{aligned}
   \beta(t) = \beta_{\text{before}} \cdot (1 - T(t)) + \beta_{\text{after}} \cdot T(t), \\ \quad T(t) = \frac{1}{1 + \exp\left( -\frac{t - t_{\text{switch}}}{\Delta t} \right)}
  \end{aligned} 
+$$
 
 ---
 
